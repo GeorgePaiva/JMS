@@ -5,12 +5,15 @@ import java.util.Scanner;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageProducer;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class TesteProdutor {
+public class TesteConsumidorFila {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception {
@@ -29,18 +32,25 @@ public class TesteProdutor {
 
 		// organizar o recebimento e a entrega das mensagens
 		Destination fila = (Destination) context.lookup("financeiro");
-		
-		
-		MessageProducer producer = session.createProducer(fila);
-		
-		
-		for (int i = 0; i < 1000; i++) {
-			Message message = session.createTextMessage("<pedido><id>" + i + "</id></pedido>");
-			producer.send(message);
-		}
-		
+		MessageConsumer consumer = session.createConsumer(fila);
 
-		//new Scanner(System.in).nextLine();
+		consumer.setMessageListener(new MessageListener() {
+
+			@Override
+			public void onMessage(Message message) {
+				TextMessage textMessage = (TextMessage) message;
+				try {
+					System.out.println(textMessage.getText());
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
+		
+		System.out.println("Conectado...");
+
+		new Scanner(System.in).nextLine();
 
 		session.close();
 		connection.close();

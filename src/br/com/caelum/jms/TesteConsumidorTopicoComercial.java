@@ -11,9 +11,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-public class TesteConsumidor {
+public class TesteConsumidorTopicoComercial {
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws Exception {
@@ -22,6 +23,9 @@ public class TesteConsumidor {
 		ConnectionFactory factory = (ConnectionFactory) context.lookup("ConnectionFactory");
 
 		Connection connection = factory.createConnection();
+		connection.setClientID("comercial");
+		
+		
 		connection.start();
 		// abstrai o trabalho transacional e confirmação do recebimento da mensagem.
 		// o primeiro parâmetro(false) define se queremos usar o tratamento da transação
@@ -31,8 +35,8 @@ public class TesteConsumidor {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
 		// organizar o recebimento e a entrega das mensagens
-		Destination fila = (Destination) context.lookup("financeiro");
-		MessageConsumer consumer = session.createConsumer(fila);
+		Topic topico = (Topic) context.lookup("loja");
+		MessageConsumer consumer = session.createDurableSubscriber(topico, "assinatura");
 
 		consumer.setMessageListener(new MessageListener() {
 
@@ -47,8 +51,6 @@ public class TesteConsumidor {
 			}
 
 		});
-		
-		System.out.println("Conectado...");
 
 		new Scanner(System.in).nextLine();
 
