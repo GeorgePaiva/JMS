@@ -47,6 +47,8 @@ public class TesteConsumidor {
 			}
 
 		});
+		
+		System.out.println("Conectado...");
 
 		new Scanner(System.in).nextLine();
 
